@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>타워 디펜스</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div id="game-container">
+        <!-- 게임 헤더 -->
+        <header class="game-header">
+            <div class="game-title">
+                <h1>🏰 타워 디펜스</h1>
+            </div>
+            <div class="game-stats">
+                <div class="stat-item">
+                    <span class="stat-icon">💰</span>
+                    <span class="stat-label">골드:</span>
+                    <span id="gold-amount">100</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">❤️</span>
+                    <span class="stat-label">생명:</span>
+                    <span id="lives-amount">20</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">🌊</span>
+                    <span class="stat-label">웨이브:</span>
+                    <span id="wave-number">1</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">🏆</span>
+                    <span class="stat-label">점수:</span>
+                    <span id="score-amount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">👑</span>
+                    <span class="stat-label">최고:</span>
+                    <span id="high-score">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 메인 게임 영역 -->
+        <main class="game-main">
+            <!-- 게임 캔버스 -->
+            <div class="game-canvas-container">
+                <canvas id="game-canvas" width="900" height="600"></canvas>
+
+                <!-- 게임 오버레이 -->
+                <div id="game-overlay" class="game-overlay hidden">
+                    <div class="overlay-content">
+                        <h2 id="overlay-title">게임 시작</h2>
+                        <p id="overlay-message">준비되셨나요?</p>
+                        <div class="overlay-buttons">
+                            <button id="start-button" class="btn btn-primary">게임 시작</button>
+                            <button id="restart-button" class="btn btn-secondary hidden">다시 시작</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 게임 내 컨트롤 -->
+                <div class="game-inline-controls">
+                    <button id="next-wave-button-inline" class="btn btn-next-wave-inline" title="다음 웨이브 시작">
+                        <span class="wave-icon">🌊</span>
+                        <span class="wave-text">바로 진행</span>
+                    </button>
+                    <button id="pause-button-inline" class="btn btn-pause-inline" title="일시정지/재개"
+                        style="display: flex;">
+                        <div class="pause-icon">
+                            <div class="pause-bars"></div>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- 게임 내 타워 선택 -->
+                <div class="game-inline-tower-selection">
+                    <div class="tower-selection-title">타워 선택</div>
+                    <div class="tower-selection-grid">
+                        <div class="tower-selection-card" data-tower="archer">
+                            <div class="tower-selection-icon">🏹</div>
+                            <div class="tower-selection-name">궁수</div>
+                            <div class="tower-selection-cost">💰 10</div>
+                        </div>
+                        <div class="tower-selection-card" data-tower="cannon">
+                            <div class="tower-selection-icon">💥</div>
+                            <div class="tower-selection-name">대포</div>
+                            <div class="tower-selection-cost">💰 25</div>
+                        </div>
+                        <div class="tower-selection-card" data-tower="magic">
+                            <div class="tower-selection-icon">🔮</div>
+                            <div class="tower-selection-name">마법</div>
+                            <div class="tower-selection-cost">💰 20</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 선택된 타워 정보 -->
+                <div id="selected-tower-info" class="selected-tower-info hidden">
+                    <h4>타워 정보</h4>
+                    <div class="tower-upgrade">
+                        <div class="upgrade-level">레벨: <span id="tower-level">1</span></div>
+                        <div class="upgrade-stats">
+                            <div>공격력: <span id="tower-damage">10</span></div>
+                            <div>사정거리: <span id="tower-range">100</span></div>
+                            <div>공격속도: <span id="tower-speed">1.0</span></div>
+                        </div>
+                        <button id="upgrade-button" class="btn btn-upgrade">업그레이드 (💰 <span
+                                id="upgrade-cost">30</span>)</button>
+                        <button id="sell-button" class="btn btn-sell">판매 (💰 <span id="sell-value">15</span>)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 타워 선택 패널 (숨김) -->
+            <div class="tower-panel hidden">
+                <h3>타워 선택</h3>
+                <div class="tower-grid">
+                    <div class="tower-card" data-tower="archer">
+                        <div class="tower-icon">🏹</div>
+                        <div class="tower-name">궁수 타워</div>
+                        <div class="tower-cost">💰 10</div>
+                        <div class="tower-description">빠른 공격속도</div>
+                    </div>
+                    <div class="tower-card" data-tower="cannon">
+                        <div class="tower-icon">💥</div>
+                        <div class="tower-name">대포 타워</div>
+                        <div class="tower-cost">💰 25</div>
+                        <div class="tower-description">범위 공격</div>
+                    </div>
+                    <div class="tower-card" data-tower="magic">
+                        <div class="tower-icon">🔮</div>
+                        <div class="tower-name">마법 타워</div>
+                        <div class="tower-cost">💰 20</div>
+                        <div class="tower-description">적 둔화</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 게임 스크립트 -->
+    <script src="js/utils.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/entities.js"></script>
+    <script src="js/towers.js"></script>
+    <script src="js/enemies.js"></script>
+    <script src="js/sound.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>
