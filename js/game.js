@@ -938,8 +938,8 @@ class Game {
     this.ctx.strokeStyle = canPlace ? "#00ff00" : "#ff0000";
     this.ctx.lineWidth = 2;
 
-    this.ctx.fillRect(gridX - 16, gridY - 16, 32, 32);
-    this.ctx.strokeRect(gridX - 16, gridY - 16, 32, 32);
+    this.ctx.fillRect(gridX - 25, gridY - 25, 50, 50);
+    this.ctx.strokeRect(gridX - 25, gridY - 25, 50, 50);
 
     // 타워 아이콘 표시
     this.ctx.globalAlpha = 1;
@@ -1497,6 +1497,15 @@ class Game {
   placeTower(x, y) {
     if (!this.selectedTowerType) return;
 
+    // 마우스 클릭 좌표를 격자 중앙 좌표로 변환
+    const gridX =
+      Math.floor(x / this.gridSize) * this.gridSize + this.gridSize / 2;
+    const gridY =
+      Math.floor(y / this.gridSize) * this.gridSize + this.gridSize / 2;
+
+    // 배치 가능 여부 확인
+    if (!this.towerManager.canPlaceTower(gridX, gridY)) return;
+
     let cost = 0;
     switch (this.selectedTowerType) {
       case "archer":
@@ -1511,7 +1520,11 @@ class Game {
     }
 
     if (this.gold >= cost) {
-      const tower = this.towerManager.placeTower(this.selectedTowerType, x, y);
+      const tower = this.towerManager.placeTower(
+        this.selectedTowerType,
+        gridX,
+        gridY
+      );
       if (tower) {
         this.gold -= cost;
         this.isPlacingTower = false;

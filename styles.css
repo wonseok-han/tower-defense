@@ -104,6 +104,8 @@ body {
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     overflow: hidden;
+    max-width: fit-content;
+    max-height: fit-content;
 }
 
 #game-canvas {

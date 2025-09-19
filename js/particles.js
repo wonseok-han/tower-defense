@@ -177,6 +177,7 @@ class Particle {
 class ParticleSystem {
   constructor() {
     this.particles = [];
+    this.lightningLines = []; // 번개 선을 저장할 배열
     this.particlePool = new ObjectPool(
       () => new Particle(0, 0, 0, 0, "#ffffff", 1, 1000),
       (particle) => particle.reset(),
@@ -286,6 +287,48 @@ class ParticleSystem {
   }
 
   /**
+   * 번개 효과를 생성합니다
+   * @param {number} startX - 시작 x 좌표
+   * @param {number} startY - 시작 y 좌표
+   * @param {number} endX - 끝 x 좌표
+   * @param {number} endY - 끝 y 좌표
+   */
+  createLightningEffect(startX, startY, endX, endY) {
+    // 번개 선 그리기
+    this.lightningLines.push({
+      startX: startX,
+      startY: startY,
+      endX: endX,
+      endY: endY,
+      life: 200,
+      maxLife: 200,
+      alpha: 1.0,
+    });
+
+    // 번개 충격 파티클
+    const particleCount = 12;
+    const colors = ["#ffffff", "#ffff88", "#88ffff", "#ff88ff"];
+
+    for (let i = 0; i < particleCount; i++) {
+      const angle = randomFloat(0, Math.PI * 2);
+      const distance = randomFloat(5, 15);
+      const particleX = endX + Math.cos(angle) * distance;
+      const particleY = endY + Math.sin(angle) * distance;
+
+      this.createParticle(particleX, particleY, {
+        vx: randomFloat(-30, 30),
+        vy: randomFloat(-30, 30),
+        color: randomChoice(colors),
+        size: randomFloat(2, 4),
+        life: randomFloat(300, 600),
+        type: "circle",
+        gravity: 0,
+        friction: 0.95,
+      });
+    }
+  }
+
+  /**
    * 타격 효과를 생성합니다
    * @param {number} x - 타격 지점 x 좌표
    * @param {number} y - 타격 지점 y 좌표
@@ -386,6 +429,17 @@ class ParticleSystem {
         this.particlePool.release(particle);
       }
     }
+
+    // 번개 선 업데이트
+    for (let i = this.lightningLines.length - 1; i >= 0; i--) {
+      const lightning = this.lightningLines[i];
+      lightning.life -= deltaTime;
+      lightning.alpha = lightning.life / lightning.maxLife;
+
+      if (lightning.life <= 0) {
+        this.lightningLines.splice(i, 1);
+      }
+    }
   }
 
   /**
@@ -393,6 +447,24 @@ class ParticleSystem {
    * @param {CanvasRenderingContext2D} ctx - 캔버스 컨텍스트
    */
   draw(ctx) {
+    // 번개 선 그리기
+    for (const lightning of this.lightningLines) {
+      ctx.save();
+      ctx.globalAlpha = lightning.alpha;
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 3;
+      ctx.shadowColor = "#88ffff";
+      ctx.shadowBlur = 10;
+
+      ctx.beginPath();
+      ctx.moveTo(lightning.startX, lightning.startY);
+      ctx.lineTo(lightning.endX, lightning.endY);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    // 파티클 그리기
     for (const particle of this.particles) {
       particle.draw(ctx);
     }

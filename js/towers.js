@@ -13,7 +13,7 @@ class Tower extends Entity {
    * @param {Object} stats - 타워 스탯
    */
   constructor(x, y, stats) {
-    super(x, y, 32, 32);
+    super(x, y, 25, 25);
 
     this.stats = {
       damage: stats.damage || 10,
@@ -211,7 +211,7 @@ class Tower extends Entity {
       this.target.isAlive &&
       this.distanceTo(this.target) <= this.stats.range * 2.0
     ) {
-      return; // 현재 타겟이 유효하면 유지 (매우 관대하게)
+      return this.target; // 현재 타겟이 유효하면 유지 (매우 관대하게)
     }
 
     let closestEnemy = null;
@@ -221,13 +221,14 @@ class Tower extends Entity {
       if (!enemy.isAlive) continue;
 
       const distance = this.distanceTo(enemy);
-      if (distance <= this.stats.range * 1.5 && distance < closestDistance) {
+      if (distance <= this.stats.range && distance < closestDistance) {
         closestDistance = distance;
         closestEnemy = enemy;
       }
     }
 
     this.target = closestEnemy;
+    return closestEnemy;
   }
 
   /**
@@ -454,60 +455,60 @@ class ArcherTower extends Tower {
     ctx.save();
     ctx.scale(levelScale, levelScale);
 
-    // 타워 그림자 (격자에 맞게 크기 조정)
+    // 타워 그림자 (중앙 기준)
     ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
-    ctx.fillRect(-25, -20, 50, 40);
+    ctx.fillRect(-12.5, -12.5, 25, 25);
 
-    // 타워 베이스 (돌 기반) - 격자에 맞게 크기 조정
-    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 25);
+    // 타워 베이스 (돌 기반) - 중앙 기준
+    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 12.5);
     gradient.addColorStop(0, "#D2B48C");
     gradient.addColorStop(0.7, "#8B7355");
     gradient.addColorStop(1, "#654321");
     ctx.fillStyle = gradient;
-    ctx.fillRect(-25, -20, 50, 40);
+    ctx.fillRect(-12.5, -12.5, 25, 25);
 
     // 돌 텍스처
     ctx.strokeStyle = "#5D4E37";
     ctx.lineWidth = 1;
-    for (let i = -20; i <= 20; i += 10) {
-      for (let j = -16; j <= 16; j += 10) {
-        ctx.strokeRect(i, j, 8, 8);
+    for (let i = -10; i <= 10; i += 5) {
+      for (let j = -8; j <= 8; j += 5) {
+        ctx.strokeRect(i, j, 4, 4);
       }
     }
 
     // 타워 상부 (나무 플랫폼)
-    const woodGradient = ctx.createLinearGradient(-20, -20, 20, 20);
+    const woodGradient = ctx.createLinearGradient(-10, -10, 10, 10);
     woodGradient.addColorStop(0, "#DEB887");
     woodGradient.addColorStop(0.5, "#CD853F");
     woodGradient.addColorStop(1, "#8B4513");
     ctx.fillStyle = woodGradient;
-    ctx.fillRect(-20, -18, 40, 12);
+    ctx.fillRect(-10, -9, 20, 6);
 
     // 나무 텍스처 라인
     ctx.strokeStyle = "#8B4513";
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(-16, -18);
-    ctx.lineTo(16, -18);
-    ctx.moveTo(-16, -12);
-    ctx.lineTo(16, -12);
+    ctx.moveTo(-8, -9);
+    ctx.lineTo(8, -9);
+    ctx.moveTo(-8, -6);
+    ctx.lineTo(8, -6);
     ctx.stroke();
 
-    // 궁수 (더 디테일한 디자인) - 격자에 맞게 크기 조정
+    // 궁수 (더 디테일한 디자인) - 25x25 크기에 맞게 조정
     // 궁수 몸체
     ctx.fillStyle = "#228B22";
-    ctx.fillRect(-5, -12, 10, 12);
+    ctx.fillRect(-2.5, -6, 5, 6);
 
     // 궁수 머리
     ctx.fillStyle = "#FFE4B5";
     ctx.beginPath();
-    ctx.arc(0, -16, 5, 0, Math.PI * 2);
+    ctx.arc(0, -8, 2.5, 0, Math.PI * 2);
     ctx.fill();
 
     // 궁수 모자
     ctx.fillStyle = "#8B4513";
     ctx.beginPath();
-    ctx.arc(0, -20, 6, 0, Math.PI);
+    ctx.arc(0, -10, 3, 0, Math.PI);
     ctx.fill();
 
     // 활
@@ -516,19 +517,19 @@ class ArcherTower extends Tower {
       ctx.save();
       ctx.rotate(angle);
 
-      // 활 그리기 - 격자에 맞게 크기 조정
+      // 활 그리기 - 25x25 크기에 맞게 조정
       ctx.strokeStyle = "#8B4513";
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(10, 0, 6, -Math.PI / 3, Math.PI / 3, false);
+      ctx.arc(5, 0, 3, -Math.PI / 3, Math.PI / 3, false);
       ctx.stroke();
 
       // 활시위
       ctx.strokeStyle = "#F5DEB3";
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(6, -3);
-      ctx.lineTo(6, 3);
+      ctx.moveTo(3, -1.5);
+      ctx.lineTo(3, 1.5);
       ctx.stroke();
 
       ctx.restore();
@@ -875,17 +876,17 @@ class CannonTower extends Tower {
     ctx.save();
     ctx.scale(levelScale, levelScale);
 
-    // 타워 그림자 - 격자에 맞게 크기 조정
+    // 타워 그림자 - 중앙 기준
     ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
-    ctx.fillRect(-25, -20, 50, 40);
+    ctx.fillRect(-12.5, -12.5, 25, 25);
 
-    // 타워 베이스 (돌 요새) - 격자에 맞게 크기 조정
-    const stoneGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 25);
+    // 타워 베이스 (돌 요새) - 중앙 기준
+    const stoneGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 12.5);
     stoneGradient.addColorStop(0, "#A9A9A9");
     stoneGradient.addColorStop(0.6, "#696969");
     stoneGradient.addColorStop(1, "#2F2F2F");
     ctx.fillStyle = stoneGradient;
-    ctx.fillRect(-25, -20, 50, 40);
+    ctx.fillRect(-12.5, -12.5, 25, 25);
 
     // 돌 블록 텍스처 - 격자에 맞게 크기 조정
     ctx.strokeStyle = "#4A4A4A";
@@ -1184,14 +1185,15 @@ class CannonballProjectile extends Projectile {
 class MagicTower extends Tower {
   constructor(x, y) {
     const stats = {
-      damage: 0, // 범위 기반 둔화 타워는 직접 데미지를 주지 않음
-      range: 120, // 둔화 범위를 넓게 설정
-      attackSpeed: 0.5, // 둔화 효과 적용 주기 (2초마다)
+      damage: 2, // 체인라이트닝 기본 데미지 (낮은 공격력)
+      range: 100, // 체인라이트닝 범위
+      attackSpeed: 1.0, // 공격 속도 (1초마다)
       cost: 20, // 중간 가격
       upgradeCost: 30,
       sellValue: 15,
-      slowDuration: 3500, // 3.5초 둔화
-      slowAmount: 0.6, // 60% 속도 감소
+      chainCount: 3, // 연쇄 공격 횟수
+      chainRange: 60, // 연쇄 공격 범위
+      slowAmount: 0.36, // 36% 속도 감소 (둔화 효과)
     };
 
     super(x, y, stats);
@@ -1200,10 +1202,16 @@ class MagicTower extends Tower {
     this.energyDirection = 1;
 
     // 업그레이드 능력
-    this.slowDuration = stats.slowDuration;
-    this.slowAmount = stats.slowAmount;
-    this.chainLightning = false; // 연쇄 번개
-    this.freezeChance = 0; // 빙결 확률
+    this.chainCount = stats.chainCount;
+    this.chainRange = stats.chainRange;
+    this.chainLightning = true; // 연쇄 번개
+    this.slowAmount = stats.slowAmount; // 둔화 효과
+
+    // 공격 쿨다운
+    this.attackCooldown = 0;
+
+    // 둔화 적용 추적을 위한 Set
+    this.slowedEnemies = new Set();
   }
 
   /**
@@ -1211,17 +1219,18 @@ class MagicTower extends Tower {
    */
   upgradeSpecialAbilities() {
     if (this.level === 2) {
-      // 레벨 2: 강화된 둔화 + 빙결 효과
-      this.slowDuration += 1500; // 5초로 증가
-      this.slowAmount = 0.8; // 80% 속도 감소
-      this.freezeChance = 0.2; // 20% 확률로 1초 빙결
-      this.stats.range = Math.round(this.stats.range * 1.2); // 범위 20% 증가
+      // 레벨 2: 강화된 체인라이트닝 + 둔화
+      this.chainCount = 4; // 연쇄 공격 횟수 증가 (3 → 4)
+      this.chainRange = 80; // 연쇄 범위 증가 (60 → 80)
+      this.slowAmount = 0.48; // 48% 속도 감소 (36% → 48%)
+      this.stats.range = Math.round(this.stats.range * 1.2); // 기본 범위 20% 증가
     } else if (this.level === 3) {
-      // 레벨 3: 강력한 둔화 + 빙결 + 범위 확장
-      this.slowAmount = 0.9; // 90% 속도 감소
-      this.freezeChance = 0.4; // 40% 확률로 1.5초 빙결
-      this.stats.range = Math.round(this.stats.range * 1.3); // 범위 30% 추가 증가
-      this.stats.attackSpeed = 0.3; // 둔화 효과 적용 주기 단축 (3.3초마다)
+      // 레벨 3: 최강 체인라이트닝 + 둔화
+      this.chainCount = 5; // 연쇄 공격 횟수 최대 (4 → 5)
+      this.chainRange = 100; // 연쇄 범위 최대 (80 → 100)
+      this.slowAmount = 0.54; // 54% 속도 감소 (48% → 54%)
+      this.stats.range = Math.round(this.stats.range * 1.3); // 기본 범위 30% 추가 증가
+      this.stats.attackSpeed = 1.5; // 공격 속도 증가 (1.0 → 1.5)
     }
   }
 
@@ -1231,7 +1240,6 @@ class MagicTower extends Tower {
    * @param {Array} enemies - 적 배열
    */
   update(deltaTime, enemies) {
-    // 범위 기반 둔화 타워는 타겟팅이 필요 없음
     if (!this.canAttack) return;
 
     // 마법 에너지 애니메이션
@@ -1244,9 +1252,13 @@ class MagicTower extends Tower {
       this.energyDirection = 1;
     }
 
-    // 범위 내 모든 적에게 상시 둔화 효과 적용
+    // 공격 쿨다운 업데이트
+    this.attackCooldown -= deltaTime;
+
+    // 둔화 효과 적용 (범위 내 모든 적에게)
     if (window.game && window.game.enemyManager) {
       let hasEnemiesInRange = false;
+      const currentEnemiesInRange = new Set();
 
       for (const enemy of window.game.enemyManager.enemies) {
         if (!enemy.isAlive) continue;
@@ -1254,25 +1266,146 @@ class MagicTower extends Tower {
         const distance = this.distanceTo(enemy);
         if (distance <= this.stats.range) {
           hasEnemiesInRange = true;
-          // 둔화 효과 상시 적용 (지속 시간을 매우 길게 설정)
-          enemy.applyStatusEffect("slow", 10000, this.slowAmount); // 10초 지속
-
-          // 빙결 효과 (업그레이드 시)
-          if (
-            this.freezeChance > 0 &&
-            Math.random() < this.freezeChance * 0.1
-          ) {
-            // 확률을 낮춰서 과도한 빙결 방지
-            const freezeDuration = this.level >= 3 ? 1500 : 1000;
-            enemy.applyStatusEffect("freeze", freezeDuration, 1.0);
-          }
+          currentEnemiesInRange.add(enemy);
+          // 둔화 효과 상시 적용
+          enemy.applyStatusEffect("slow", 10000, this.slowAmount);
         }
       }
 
-      // 범위 내 적이 있으면 시각적 효과 생성 (쿨다운 없이)
-      if (hasEnemiesInRange) {
-        this.attack();
+      // 범위를 벗어난 적들의 둔화 효과 제거
+      for (const enemy of this.slowedEnemies) {
+        if (!currentEnemiesInRange.has(enemy)) {
+          enemy.removeStatusEffect("slow");
+          this.slowedEnemies.delete(enemy);
+        }
       }
+
+      // 현재 범위 내 적들을 추적
+      this.slowedEnemies = currentEnemiesInRange;
+
+      // 체인라이트닝 공격
+      if (this.attackCooldown <= 0) {
+        const target = this.findTarget(enemies);
+        if (target) {
+          this.performChainLightning(target);
+          this.attackCooldown = 1000 / this.stats.attackSpeed;
+        }
+      }
+    }
+  }
+
+  /**
+   * 체인라이트닝 공격을 수행합니다
+   * @param {Enemy} firstTarget - 첫 번째 타겟
+   */
+  performChainLightning(firstTarget) {
+    if (!window.game || !window.game.enemyManager) return;
+
+    const hitEnemies = new Set();
+    const chainPath = []; // 연쇄 경로를 저장
+    let currentTarget = firstTarget;
+    let chainCount = 0;
+
+    // 첫 번째 타겟 공격 (타워에서 첫 번째 적으로)
+    this.attackEnemy(currentTarget);
+    hitEnemies.add(currentTarget);
+    chainPath.push({
+      from: this.position,
+      to: currentTarget.position,
+    });
+    chainCount++;
+
+    // 연쇄 공격 수행
+    while (chainCount < this.chainCount && currentTarget) {
+      const nextTarget = this.findNextChainTarget(currentTarget, hitEnemies);
+      if (nextTarget) {
+        this.attackEnemy(nextTarget);
+        hitEnemies.add(nextTarget);
+
+        // 연쇄 경로 추가 (현재 적에서 다음 적으로)
+        chainPath.push({
+          from: currentTarget.position,
+          to: nextTarget.position,
+        });
+
+        currentTarget = nextTarget;
+        chainCount++;
+      } else {
+        break; // 더 이상 연쇄할 적이 없음
+      }
+    }
+
+    // 체인라이트닝 시각적 효과 생성
+    this.createChainLightningEffect(chainPath);
+
+    // 시각적 효과 생성
+    this.attack();
+  }
+
+  /**
+   * 다음 연쇄 타겟을 찾습니다
+   * @param {Enemy} currentTarget - 현재 타겟
+   * @param {Set} hitEnemies - 이미 공격받은 적들
+   * @returns {Enemy|null} 다음 타겟
+   */
+  findNextChainTarget(currentTarget, hitEnemies) {
+    if (!window.game || !window.game.enemyManager) return null;
+
+    let closestEnemy = null;
+    let closestDistance = Infinity;
+
+    for (const enemy of window.game.enemyManager.enemies) {
+      if (!enemy.isAlive || hitEnemies.has(enemy)) continue;
+
+      const distance = currentTarget.distanceTo(enemy);
+      if (distance <= this.chainRange) {
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestEnemy = enemy;
+        }
+      }
+    }
+
+    return closestEnemy;
+  }
+
+  /**
+   * 적을 공격합니다
+   * @param {Enemy} enemy - 공격할 적
+   */
+  attackEnemy(enemy) {
+    if (!enemy || !enemy.isAlive) return;
+
+    // 데미지 적용
+    enemy.takeDamage(this.stats.damage);
+  }
+
+  /**
+   * 체인라이트닝 시각적 효과를 생성합니다
+   * @param {Array} chainPath - 연쇄 경로 배열
+   */
+  createChainLightningEffect(chainPath) {
+    if (!window.game || !window.game.particleSystem) return;
+
+    // 각 연쇄 구간에 대해 번개 효과 생성
+    for (const segment of chainPath) {
+      window.game.particleSystem.createLightningEffect(
+        segment.from.x,
+        segment.from.y,
+        segment.to.x,
+        segment.to.y
+      );
+    }
+
+    // 마지막 적에게 충격 파티클 생성
+    if (chainPath.length > 0) {
+      const lastTarget = chainPath[chainPath.length - 1].to;
+      window.game.particleSystem.createHitEffect(lastTarget.x, lastTarget.y, {
+        count: 15,
+        colors: ["#ffffff", "#ffff88", "#88ffff"],
+        size: 3,
+        life: 600,
+      });
     }
   }
 
@@ -1315,17 +1448,17 @@ class MagicTower extends Tower {
     ctx.save();
     ctx.scale(levelScale, levelScale);
 
-    // 타워 그림자 - 격자에 맞게 크기 조정
+    // 타워 그림자 - 중앙 기준
     ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
-    ctx.fillRect(-25, -20, 50, 40);
+    ctx.fillRect(-12.5, -12.5, 25, 25);
 
     // 타워 베이스 (신비로운 돌)
-    const mysticalGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 25);
+    const mysticalGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 12.5);
     mysticalGradient.addColorStop(0, "#9370DB");
     mysticalGradient.addColorStop(0.5, "#4B0082");
     mysticalGradient.addColorStop(1, "#2E0854");
     ctx.fillStyle = mysticalGradient;
-    ctx.fillRect(-25, -20, 50, 40);
+    ctx.fillRect(-12.5, -12.5, 25, 25);
 
     // 룬 문자 각인 - 격자에 맞게 크기 조정
     ctx.strokeStyle = "#DDA0DD";
@@ -1964,14 +2097,15 @@ class TowerManager {
    * @returns {boolean} 배치 가능 여부
    */
   canPlaceTower(x, y) {
-    // 격자에 맞춤 (15x10 격자 시스템)
-    const gridX =
-      Math.floor(x / this.gridSize) * this.gridSize + this.gridSize / 2;
-    const gridY =
-      Math.floor(y / this.gridSize) * this.gridSize + this.gridSize / 2;
+    // 이미 격자 중앙 좌표로 변환된 좌표를 사용
+    const gridX = x;
+    const gridY = y;
 
-    // 맵 경계 확인
-    if (gridX < 0 || gridX >= 900 || gridY < 0 || gridY >= 600) {
+    // 맵 경계 확인 (동적으로 계산)
+    const mapWidth = window.game ? window.game.mapWidth * this.gridSize : 900;
+    const mapHeight = window.game ? window.game.mapHeight * this.gridSize : 600;
+
+    if (gridX < 0 || gridX >= mapWidth || gridY < 0 || gridY >= mapHeight) {
       return false;
     }
 
@@ -2022,13 +2156,9 @@ class TowerManager {
    * @returns {Tower|null} 배치된 타워
    */
   placeTower(towerType, x, y) {
-    if (!this.canPlaceTower(x, y)) return null;
-
-    // 격자에 맞춤
-    const gridX =
-      Math.floor(x / this.gridSize) * this.gridSize + this.gridSize / 2;
-    const gridY =
-      Math.floor(y / this.gridSize) * this.gridSize + this.gridSize / 2;
+    // 이미 격자 중앙 좌표로 변환된 좌표를 사용
+    const gridX = x;
+    const gridY = y;
 
     let tower = null;
 

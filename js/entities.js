@@ -26,7 +26,7 @@ class Entity {
     this.type = "entity";
     this.tags = new Set();
 
-    // 바운딩 박스 (충돌 검사용)
+    // 바운딩 박스 (충돌 검사용) - 중앙 기준
     this.boundingBox = {
       x: x - width / 2,
       y: y - height / 2,
