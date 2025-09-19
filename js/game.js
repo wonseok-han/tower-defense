@@ -239,23 +239,21 @@ class Game {
   setupPath() {
     // 15x10 격자에서 구불구불한 경로 (격자 중앙 좌표 사용)
     this.path = [
-      new Vector2(-30, 210), // 화면 밖 시작점 (왼쪽 중간)
-      new Vector2(30, 210), // 첫 번째 격자 진입
-      new Vector2(90, 210), // 직진
-      new Vector2(150, 210), // 계속 직진
-      new Vector2(210, 150), // 첫 번째 꺾임 (위로)
-      new Vector2(270, 90), // 더 위로
-      new Vector2(330, 90), // 위쪽 직진
-      new Vector2(390, 150), // 두 번째 꺾임 (아래로)
-      new Vector2(450, 210), // 중간으로
-      new Vector2(510, 270), // 세 번째 꺾임 (아래로)
-      new Vector2(570, 330), // 아래쪽으로
-      new Vector2(630, 330), // 아래쪽 직진
-      new Vector2(690, 270), // 네 번째 꺾임 (위로)
-      new Vector2(750, 210), // 중간으로
-      new Vector2(810, 150), // 다섯 번째 꺾임 (위로)
-      new Vector2(870, 150), // 위쪽 직진
-      new Vector2(930, 150), // 화면 밖 끝점
+      new Vector2(-20, 90), // 화면 밖 시작점 (왼쪽 중간)
+      new Vector2(20, 90),
+      new Vector2(150, 90),
+      new Vector2(150, 390),
+      new Vector2(270, 390),
+      new Vector2(270, 90),
+      new Vector2(390, 90),
+      new Vector2(390, 390),
+      new Vector2(510, 390),
+      new Vector2(510, 90),
+      new Vector2(630, 90),
+      new Vector2(630, 390),
+      new Vector2(750, 390),
+      new Vector2(750, 90),
+      new Vector2(880, 90), // 화면 밖 끝점
     ];
 
     // 경로를 맵에 표시

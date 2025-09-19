@@ -2101,45 +2101,50 @@ class TowerManager {
     const gridX = x;
     const gridY = y;
 
-    // 맵 경계 확인 (동적으로 계산)
-    const mapWidth = window.game ? window.game.mapWidth * this.gridSize : 900;
-    const mapHeight = window.game ? window.game.mapHeight * this.gridSize : 600;
+    // 게임의 격자 크기를 신뢰하여 사용 (불일치 방지)
+    const gridSize =
+      window.game && window.game.gridSize
+        ? window.game.gridSize
+        : this.gridSize || 60;
 
-    if (gridX < 0 || gridX >= mapWidth || gridY < 0 || gridY >= mapHeight) {
+    // 맵 경계 확인 (픽셀 단위 경계)
+    const mapWidthPx = window.game ? window.game.mapWidth * gridSize : 900;
+    const mapHeightPx = window.game ? window.game.mapHeight * gridSize : 600;
+
+    if (gridX < 0 || gridX >= mapWidthPx || gridY < 0 || gridY >= mapHeightPx) {
       return false;
     }
 
     // 격자 좌표 계산
-    const mapX = Math.floor(gridX / this.gridSize);
-    const mapY = Math.floor(gridY / this.gridSize);
+    const mapX = Math.floor(gridX / gridSize);
+    const mapY = Math.floor(gridY / gridSize);
 
     // 맵 데이터 확인 (장식 요소나 경로 체크)
-    if (
-      window.game &&
-      window.game.map &&
-      mapY < window.game.map.length &&
-      mapX < window.game.map[mapY].length
-    ) {
-      const cell = window.game.map[mapY][mapX];
+    const map = window.game && window.game.map;
+    if (map && map[mapY] && map[mapY][mapX]) {
+      const cell = map[mapY][mapX];
       if (!cell.canBuildTower) {
-        return false; // 나무나 바위 등 장식 요소가 있는 곳
+        return false; // 경로/장식 등으로 건설 불가
       }
     }
 
-    // 다른 타워와 겹치는지 확인
+    // 다른 타워와 겹치는지 확인 (격자 크기 기준 최소 간격)
     for (const tower of this.towers) {
       if (
-        distance(tower.position.x, tower.position.y, gridX, gridY) <
-        this.gridSize
+        distance(tower.position.x, tower.position.y, gridX, gridY) < gridSize
       ) {
         return false;
       }
     }
 
-    // 경로와 겹치는지 확인
-    if (window.game && window.game.path) {
-      for (const pathPoint of window.game.path) {
-        if (distance(pathPoint.x, pathPoint.y, gridX, gridY) < 35) {
+    // 경로와 겹치는지 확인 (격자 크기 기반 임계값)
+    const path = window.game && window.game.path;
+    if (path) {
+      const overlapThreshold = Math.max(20, gridSize * 0.6);
+      for (const pathPoint of path) {
+        if (
+          distance(pathPoint.x, pathPoint.y, gridX, gridY) < overlapThreshold
+        ) {
           return false;
         }
       }
